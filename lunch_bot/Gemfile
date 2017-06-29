@@ -3,3 +3,8 @@ source "https://rubygems.org"
 gem 'slack-ruby-client'
 gem 'eventmachine'
 gem 'faye-websocket'
+gem 'json', '~> 1.8', '>= 1.8.6'
+
+group :dev do
+  gem 'pry'
+end
