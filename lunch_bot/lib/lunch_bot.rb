@@ -1,8 +1,5 @@
 require 'slack-ruby-bot'
-
-
 # Run command is
-# SLACK_API_TOKEN=xoxb-205565088373-CbkZFRI2qTT9KXvU0rQ8l2Ym bundle exec ruby lunch_bot.rb
 
 class LunchAndLearnBot < SlackRubyBot::Bot
 
