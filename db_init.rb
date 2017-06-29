@@ -37,7 +37,7 @@ ActiveRecord::Schema.define do
 
   unless ActiveRecord::Base.connection.tables.include? 'videos'
     create_table :videos do |table|
-      table.column :url, :string
+      table.column :url, :string, :unique => true
       table.column :total_votes, :integer
       table.column :views, :integer
       table.column :like_ratio, :float

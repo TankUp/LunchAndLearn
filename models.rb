@@ -19,7 +19,7 @@ class Event < ActiveRecord::Base
     event_videos.all.max.video
   end
 
-  def add_video(video)
+  def add_video_suggestion(video)
     contains_video = event_videos.all.any? do |ev_v|
       ev_v.video == video
     end
@@ -33,6 +33,8 @@ class Event < ActiveRecord::Base
   end
 end
 
+# The middle table between Events and Videos, denoting which videos are selected for
+# which event
 class EventVideo < ActiveRecord::Base
   belongs_to :event
   belongs_to :video
