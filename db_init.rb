@@ -49,6 +49,7 @@ ActiveRecord::Schema.define do
       table.column :event_id, :integer
       table.column :video_id, :integer
       table.column :votes, :integer
+      table.column :consecutive_number, :integer
     end
   end
 

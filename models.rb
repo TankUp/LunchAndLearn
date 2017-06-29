@@ -14,6 +14,11 @@ class Event < ActiveRecord::Base
   has_many :people, :through => :event_participants
   has_many :videos, :through => :event_videos
 
+  # Returns the currently active Event object
+  def self.get_active_event
+    Event.last
+  end
+
   # Picks the Video that is going to be watched at the Event
   def pick_final_video
     event_videos.all.max.video
@@ -21,12 +26,14 @@ class Event < ActiveRecord::Base
 
   def add_video_suggestion(video)
     contains_video = event_videos.all.any? do |ev_v|
-      ev_v.video == video
+      ev_v.video.url == video.url
     end
 
     unless contains_video
       # create new event video
-      event_video = EventVideo.new(video: video, event: self)
+      latest_consecutive_number = EventVideo.where(:event_id => self.id).count + 1
+
+      event_video = EventVideo.new(video: video, event: self, consecutive_number: latest_consecutive_number)
       event_video.save!
       event_videos << event_video
     end
