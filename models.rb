@@ -33,9 +33,42 @@ class Event < ActiveRecord::Base
       # create new event video
       latest_consecutive_number = EventVideo.where(:event_id => self.id).count + 1
 
-      event_video = EventVideo.new(video: video, event: self, consecutive_number: latest_consecutive_number)
+      event_video = EventVideo.create!(video: video, event: self, consecutive_number: latest_consecutive_number)
       event_video.save!
       event_videos << event_video
+    end
+  end
+
+  # Adds a vote to the Video if such a video is registered for this Event
+  def add_video_vote_by_url(user, video_url)
+    wanted_video = Video.find_by(url: video_url)
+    contains_video = event_videos.all.any? do |ev_v|
+      ev_v.video.url == video.url
+    end
+
+    if contains_video
+      # get the EventVideo object
+      event_video = EventVideo.find_by(:event_id => self.id, :video_id => wanted_video.id)
+      # vote for it from the user's name
+      begin
+        EventVideoVote.create!(event_video: event_video, person: user)
+      rescue ActiveRecord::RecordInvalid => e
+        # the user has already voted for this
+      end
+    end
+  end
+
+  def add_video_vote_by_consecutive_number(user, video_cons_number)
+    # get the EventVideo object
+    event_video = EventVideo.find_by(:event_id => self.id, :consecutive_number => video_cons_number)
+    if event_video.nil?
+      return
+    end
+    # vote for it from the user's name
+    begin
+      EventVideoVote.create!(event_video: event_video, person: user)
+    rescue ActiveRecord::RecordInvalid => e
+      # the user has already voted for this
     end
   end
 end

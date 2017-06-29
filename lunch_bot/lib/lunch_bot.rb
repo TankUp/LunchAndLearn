@@ -7,7 +7,6 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     youtube_link = match[:link]
     group_is_dm = data.channel[0] == 'D'
     current_user = data.user
-    # TODO: if user is not added, add him to the DB :)
     user = Person.find_by(slack_name: current_user)
     if user.nil?
       user = Person.create(slack_name: current_user)
@@ -25,7 +24,14 @@ class LunchAndLearnBot < SlackRubyBot::Bot
   end
 
   match /Voting for (?<vote_number>\d+)/ do |client, data, match|
-    vote_num = match[:vote_number]
+    vote_num = match[:vote_number].to_i
+    current_user = data.user
+    user = Person.find_by(slack_name: current_user)
+    if user.nil?
+      user = Person.create(slack_name: current_user)
+    end
+
+    Event.get_active_event.add_video_vote_by_consecutive_number(user, vote_num)
   end
 
   # creates a new event and initiates a vote for it
