@@ -51,6 +51,13 @@ class EventVideo < ActiveRecord::Base
   end
 end
 
+class EventVideoVote < ActiveRecord::Base
+  validates :person_id, uniqueness: {scope: :event_video_id}
+
+  belongs_to :event_video
+  belongs_to :person
+end
+
 class EventParticipant < ActiveRecord::Base
   belongs_to :event
   belongs_to :person

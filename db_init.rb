@@ -53,6 +53,13 @@ ActiveRecord::Schema.define do
     end
   end
 
+  unless ActiveRecord::Base.connection.tables.include? 'event_video_votes'
+    create_table :event_video_votes do |table|
+      table.column :event_video_id, :integer
+      table.column :person_id, :integer
+    end
+  end
+
   unless ActiveRecord::Base.connection.tables.include? 'venues'
     create_table :venues do |table|
       table.column :name, :string
