@@ -32,6 +32,7 @@ ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'people'
     create_table :people do |table|
       table.column :slack_name, :string
+      table.column :slack_id, :string
     end
   end
 

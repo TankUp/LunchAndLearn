@@ -62,13 +62,15 @@ class Event < ActiveRecord::Base
     # get the EventVideo object
     event_video = EventVideo.find_by(:event_id => self.id, :consecutive_number => video_cons_number)
     if event_video.nil?
-      return
+      return false, "Video number #{video_cons_number} does not exist!"
     end
     # vote for it from the user's name
     begin
       EventVideoVote.create!(event_video: event_video, person: user)
+      return true, "Your vote for video #{video_cons_number} was accepted!"
     rescue ActiveRecord::RecordInvalid => e
       # the user has already voted for this
+      return false, "You have already voted for video #{video_cons_number}"
     end
   end
 end
