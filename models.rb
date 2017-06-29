@@ -18,6 +18,19 @@ class Event < ActiveRecord::Base
   def pick_final_video
     event_videos.all.max.video
   end
+
+  def add_video(video)
+    contains_video = event_videos.all.any? do |ev_v|
+      ev_v.video == video
+    end
+
+    unless contains_video
+      # create new event video
+      event_video = EventVideo.new(video: video, event: self)
+      event_video.save!
+      event_videos << event_video
+    end
+  end
 end
 
 class EventVideo < ActiveRecord::Base
