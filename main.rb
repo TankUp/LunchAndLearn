@@ -1,6 +1,7 @@
 require './db_init'
 require './models'
 require './slack_token'
+require './commands_help.rb'
 require 'slack-ruby-bot'
 
 Slack.configure do |config|
