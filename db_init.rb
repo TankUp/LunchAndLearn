@@ -51,4 +51,10 @@ ActiveRecord::Schema.define do
       table.column :votes, :integer
     end
   end
+
+  unless ActiveRecord::Base.connection.tables.include? 'venues'
+    create_table :venues do |table|
+      table.column :name, :string
+    end
+  end
 end
