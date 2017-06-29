@@ -1,4 +1,5 @@
 require 'slack-ruby-bot'
+require 'date'
 # Run command is
 
 class LunchAndLearnBot < SlackRubyBot::Bot
@@ -36,14 +37,18 @@ class LunchAndLearnBot < SlackRubyBot::Bot
 
   # creates a new event and initiates a vote for it
   def self.announce_event_vote(client)
+    # Don't announce votes more frequently than every 10 seconds
+    return if (not @last_vote_time.nil?) && (Time.now - @last_vote_time) < 10
+
     current_event = Event.get_active_event
     client.say(channel: $main_channel, text: 'Accepting votes for videos!')
     # get the videos by URL
     vote_text = ''
     current_event.event_videos.all.each do |event_vid|
-      vote_text += "#{event_vid.consecutive_number} - #{event_vid.video.url}\n"
+      vote_text += "#{event_vid.consecutive_number} (#{event_vid.votes} votes)- #{event_vid.video.url}\n"
     end
     client.say(channel: $main_channel, text: vote_text)
+    @last_vote_time = Time.now
   end
 end
 

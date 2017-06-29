@@ -78,6 +78,12 @@ end
 class EventVideo < ActiveRecord::Base
   belongs_to :event
   belongs_to :video
+  has_many :event_video_votes
+
+  # returns the number of votes this video has accumulated
+  def votes
+    event_video_votes.all.count
+  end
 
   def <=>(other_vid)
     self.votes <=> other_vid.votes
