@@ -6,6 +6,8 @@ require_relative 'bot_helper'
 class LunchAndLearnBot < SlackRubyBot::Bot
 
 
+
+
   # Add video suggestion
   match /(?<link>http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?)/ do |client, data, match|
     return unless data.channel[0] == 'D'  # if its not a private message, don't count the video
@@ -19,12 +21,29 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     end
 
     client.say(channel: data.channel, text: 'Thanks for the video, I will add it as a suggestion for the event :)')
+    client.say(channel: data.channel, text: 'You can suggest food by typing: Food suggestion ..........?')
+
+    kurtaboli(client, data)
+
     # TODO: Query YT API for views, likes and etc
     vid = Video.new(url: youtube_link)
     Event.get_active_event.add_video_suggestion(vid)
 
     # TODO: Initiate event vote in main channel :)
     announce_event_vote(client)
+  end
+
+
+
+  match /Food vote (?<vote>.+)/   do |client, data, match|
+    food_vote = match[:vote]
+
+    user = Person.find_by(slack_id: current_user)
+    if user.nil?
+      user_name = BotHelper.fetch_username_by_id(current_user)
+      user = Person.create(slack_id: current_user, slack_name: user_name)
+    end
+    Event.get_active_event.add_food_vote_by_consecutive_number
   end
 
   # Accept a vote via a number (i.e vote for video 3)
@@ -63,12 +82,20 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     client.say(channel: user_channel.id, text: message)
   end
 
+
+  match // do |client, data, _|
+    try_announce_event_time_vote(client)
+    try_end_event_time_votes(client)
+  end
+
+
   # Every other match, used to keep the bot active, tracking when
   # it should create a new event and etc
   match /.*/ do |client, data, _|
     try_announce_event_time_vote(client)
     try_end_event_time_votes(client)
   end
+
 
   # Creates a new event and initiates a vote for it
   def self.announce_event_vote(client)

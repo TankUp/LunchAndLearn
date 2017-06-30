@@ -11,6 +11,7 @@ ActiveRecord::Schema.define do
     create_table :events do |table|
       table.column :week,     :integer
       table.column :video_id, :integer
+      table.column :food_id, :integer
       table.column :venue_id, :integer
       table.column :manager_id, :integer, through: 'people'
       table.column :event_datetime, :datetime
@@ -79,6 +80,29 @@ ActiveRecord::Schema.define do
   unless ActiveRecord::Base.connection.tables.include? 'venues'
     create_table :venues do |table|
       table.column :name, :string
+    end
+  end
+
+  unless ActiveRecord::Base.connection.tables.include? 'foods'
+    create_table :foods do |table|
+      table.column :food_type, :string, :unique => true
+      table.column :total_votes, :integer
+    end
+  end
+
+  unless ActiveRecord::Base.connection.tables.include? 'event_foods'
+    create_table :event_foods do |table|
+      table.column :event_id, :integer
+      table.column :food_id, :integer
+      table.column :votes, :integer
+      table.column :consecutive_number, :integer
+    end
+  end
+
+  unless ActiveRecord::Base.connection.tables.include? 'event_food_votes'
+    create_table :event_food_votes do |table|
+      table.column :event_food_id, :integer
+      table.column :person_id, :integer
     end
   end
 end

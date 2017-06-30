@@ -8,10 +8,18 @@ class Person < ActiveRecord::Base
   has_many :events, :through => :event_participants
 end
 
+class Food < ActiveRecord::Base
+  has_many :event_foods
+  has_many :events, :through => :event_foods
+end
+
 class Event < ActiveRecord::Base
   has_many :event_participants
   has_many :event_videos
   has_many :event_time_votes
+  has_many :event_foods
+  has_many :event_food_votes
+  has_many :foods, :through => :event_foods
   has_many :people, :through => :event_participants
   has_many :videos, :through => :event_videos
 
@@ -23,6 +31,25 @@ class Event < ActiveRecord::Base
   # Picks the Video that is going to be watched at the Event
   def pick_final_video
     event_videos.all.max.video
+  end
+
+  def pick_final_food
+    event_foods.all.max.video
+  end
+
+  def add_food_suggestion(food)
+    contains_food = event_foods.all.any? do |ev_f|
+      ev_f.food.food_type = ev_f.food_type
+    end
+
+    unless contains_food
+      # create new event video
+      latest_consecutive_number = EventFood.where(:event_id => self.id).count + 1
+
+      event_food = EventFood.create!(food: food, event: self, consecutive_number: latest_consecutive_number)
+      event_food.save!
+      event_foods << event_food
+    end
   end
 
   def add_video_suggestion(video)
@@ -75,6 +102,23 @@ class Event < ActiveRecord::Base
     end
   end
 
+  #Add consecutive number vote for food
+  def add_food_vote_by_consecutive_number(user, food_cons_number)
+
+    event_food = EventFood.find_by(:food_id => self.id, :consecutive_number => food_cons_number)
+    if event_food.nil?
+      return false, "Food number #{food_cons_number} does not exist!"
+    end
+    # vote for it from the user's name
+    begin
+      EventFoodVote.create!(event_food: event_food, person: user)
+      return true, "Your vote for food #{food_cons_number} was accepted!"
+    rescue ActiveRecord::RecordInvalid => e
+      # the user has already voted for this
+      return false, "You have already voted for food #{food_cons_number}"
+    end
+  end
+
   # Adds a vote for the day the event should be hosted on
   def add_event_time_vote(user, day)
     # TODO: Check if event vote is initialized
@@ -124,6 +168,22 @@ end
 
 # The middle table between Events and Videos, denoting which videos are selected for
 # which event
+
+class EventFood < ActiveRecord::Base
+  belongs_to :event
+  belongs_to :food
+
+  has_many :event_food_votes
+
+  def votes
+    event_food_votes.all.count
+  end
+
+  def <=>(other_fid)
+    self.votes <=> other_fid.votes
+  end
+end
+
 class EventVideo < ActiveRecord::Base
   belongs_to :event
   belongs_to :video
@@ -156,6 +216,14 @@ class EventTimeVote < ActiveRecord::Base
   def self.is_new_vote(old_vote)
     return old_vote != 1
   end
+end
+
+class EventFoodVote < ActiveRecord::Base
+  validates :person_id, uniqueness: {scope: :event_food_id}
+
+  belongs_to :event_food
+  belongs_to :person
+
 end
 
 class EventParticipant < ActiveRecord::Base
