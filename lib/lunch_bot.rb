@@ -1,12 +1,10 @@
 require 'slack-ruby-bot'
 require 'date'
 require_relative 'bot_helper'
+require 'video_info'
 
 
 class LunchAndLearnBot < SlackRubyBot::Bot
-
-
-
 
   # Add video suggestion
   match /(?<link>http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?)/ do |client, data, match|
@@ -21,9 +19,7 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     end
 
     client.say(channel: data.channel, text: 'Thanks for the video, I will add it as a suggestion for the event :)')
-    client.say(channel: data.channel, text: 'You can suggest food by typing: Food suggestion ..........?')
 
-    kurtaboli(client, data)
 
     # TODO: Query YT API for views, likes and etc
     vid = Video.new(url: youtube_link)
@@ -105,7 +101,9 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     current_event = Event.get_active_event
     client.say(channel: $main_channel, text: "Accepting votes for Lunch and Learn week #{current_event.week}\n")
     vote_text = current_event.event_videos.all.reduce('') do |vote_text, event_vid|
-      vote_text + "#{event_vid.consecutive_number} (#{event_vid.votes} votes)- #{event_vid.video.url}\n"
+      vidinf = VideoInfo.new(event_vid.video.url)
+      vote_text + "#{event_vid.consecutive_number}) 🎥 *#{vidinf.title}* - #{event_vid.video.url} \n  _#{vidinf.description}_ \n \n #{get_number(event_vid.votes)} votes \n\n\n"
+
     end
     client.say(channel: $main_channel, text: vote_text)
 
@@ -149,4 +147,31 @@ Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
       current_event.save!
     end
   end
+
+  def self.get_number(num) 
+    case num
+  when 0
+   "0️⃣"
+  when 1
+   "1️⃣"
+  when 2 
+   "2️⃣"    
+  when 3
+ "3️⃣"
+  when 4
+"4️⃣" 
+  when 5
+"5️⃣"
+  when 6
+"6️⃣"
+  when 7
+"7️⃣"
+  when 8
+"8️⃣"
+  when 9
+"9️⃣"
+else 
+  "no such number"
+  end
+end
 end
