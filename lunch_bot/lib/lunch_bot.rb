@@ -45,6 +45,24 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     client.say(channel: user_channel.id, text: message)
   end
 
+  # Accept a vote for the time of day of the event
+  match /Voting for (?<day>([Mm]onday)|([Tt]uesday)|([Ww]ednesday)|([Tt]hursday)|([Ff]riday))/ do |client, data, match|
+    vote_day = match[:day]
+    current_user = data.user
+
+    user = Person.find_by(slack_id: current_user)
+    if user.nil?
+      user_name = BotHelper.fetch_username_by_id(current_user)
+      user = Person.create(slack_id: current_user, slack_name: user_name)
+    end
+
+    _, message = Event.get_active_event.add_event_time_vote(user, vote_day)
+
+    # PM the user the resulting message
+    user_channel = BotHelper.fetch_channel_by_user_id(user.slack_id)
+    client.say(channel: user_channel.id, text: message)
+  end
+
   # Every other match, used to keep the bot active, tracking when
   # it should create a new event and etc
   match /.*/ do |client, data, _|

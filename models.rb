@@ -74,6 +74,52 @@ class Event < ActiveRecord::Base
       return false, "You have already voted for video #{video_cons_number}"
     end
   end
+
+  # Adds a vote for the day the event should be hosted on
+  def add_event_time_vote(user, day)
+    # TODO: Check if event vote is initialized
+    # TODO: Check if event vote has expired
+    begin
+      person_vote = event_time_votes.find_by!(:person_id => user.id)
+    rescue ActiveRecord::RecordNotFound
+      person_vote = EventTimeVote.create(person: user, event: self)
+    end
+
+    is_new_vote = false
+    case day
+      when /[Mm]onday/
+        is_new_vote = EventTimeVote.is_new_vote(person_vote.monday_votes)
+        self.monday_votes += 1 if is_new_vote
+        person_vote.monday_votes = 1
+      when /[Tt]uesday/
+        is_new_vote = EventTimeVote.is_new_vote(person_vote.tuesday_votes)
+        self.tuesday_votes += 1 if is_new_vote
+        person_vote.tuesday_votes = 1
+      when /[Ww]ednesday/
+        is_new_vote = EventTimeVote.is_new_vote(person_vote.wednesday_votes)
+        self.wednesday_votes += 1 if is_new_vote
+        person_vote.wednesday_votes = 1
+      when /[Tt]hursday/
+        is_new_vote = EventTimeVote.is_new_vote(person_vote.thursday_votes)
+        self.thursday_votes += 1 if is_new_vote
+        person_vote.thursday_votes = 1
+      when /[Ff]riday/
+        is_new_vote = EventTimeVote.is_new_vote(person_vote.friday_votes)
+        self.friday_votes += 1 if is_new_vote
+        person_vote.friday_votes = 1
+      else
+        raise Exception.new("#{day} is not a valid day for the Event Time!")
+    end
+
+    person_vote.save!
+    self.save!
+
+    if is_new_vote
+      return true, "Your vote for hosting the event on #{day.capitalize} was accepted!"
+    else
+      return false, "You have already voted for hosting the event on #{day.capitalize}"
+    end
+  end
 end
 
 # The middle table between Events and Videos, denoting which videos are selected for
@@ -105,6 +151,11 @@ class EventTimeVote < ActiveRecord::Base
 
   belongs_to :person
   belongs_to :event
+
+  # Returns a boolean indicating if the given day (e.g monday_votes) was voted for
+  def self.is_new_vote(old_vote)
+    return old_vote != 1
+  end
 end
 
 class EventParticipant < ActiveRecord::Base

@@ -15,11 +15,11 @@ ActiveRecord::Schema.define do
       table.column :manager_id, :integer, through: 'people'
       table.column :event_datetime, :datetime
       table.column :votes_initiated_at, :datetime
-      table.column :monday_votes, :integer
-      table.column :tuesday_votes, :integer
-      table.column :wednesday_votes, :integer
-      table.column :thursday_votes, :integer
-      table.column :friday_votes, :integer
+      table.column :monday_votes, :integer, defaut: 0
+      table.column :tuesday_votes, :integer, defaut: 0
+      table.column :wednesday_votes, :integer, defaut: 0
+      table.column :thursday_votes, :integer, defaut: 0
+      table.column :friday_votes, :integer, defaut: 0
     end
   end
 
@@ -63,8 +63,8 @@ ActiveRecord::Schema.define do
   end
 
   # The table holding information on which person voted on which time to host the event
-  unless ActiveRecord::Base.connection.tables.include? 'event_time_vote'
-    create_table :event_time_vote do |table|
+  unless ActiveRecord::Base.connection.tables.include? 'event_time_votes'
+    create_table :event_time_votes do |table|
       table.column :event_id, :integer
       table.column :person_id, :integer
       table.column :monday_votes, :integer
