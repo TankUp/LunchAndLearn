@@ -68,6 +68,7 @@ class LunchAndLearnBot < SlackRubyBot::Bot
   match /.*/ do |client, data, _|
     try_announce_event_time_vote(client)
     try_end_event_time_votes(client)
+    try_create_next_event
   end
 
   # Creates a new event and initiates a vote for it
@@ -96,7 +97,7 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     current_event.save!
 
     # announce in the channel
-    client.say(channel: $main_channel, text: "Accepting votes for the day of the Lunch and Learn week #{current_event.week} event!")
+    client.say(channel: $main_channel, text: "<!channel> Accepting votes for the day of the Lunch and Learn week #{current_event.week} event!")
     voting_options_text = %Q$
     Monday @ 13:00 - 14:00 (#{current_event.monday_votes} votes)
 Tuesday @ 13:00 - 14:00 (#{current_event.tuesday_votes} votes)
@@ -108,18 +109,32 @@ Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
   end
 
   # Tries to end the votes for the time of the event and pick the best one
+  # @return [Boolean] - if the event ended or not
   def self.try_end_event_time_votes(client)
     current_event = Event.get_active_event
-    return unless current_event.time_votes_active
+    return false unless current_event.time_votes_active
     hours_from_vote_start = ((Time.now - current_event.votes_initiated_at) / 3600).round
-    if hours_from_vote_start >= 3
+    if hours_from_vote_start >= 0
       # if 3 or more hours have passed since the vote, close it
       current_event.time_votes_active = false
       client.say(channel: $main_channel, text: 'The voting for the date of the event is closed!')
       day, votes = current_event.pick_winning_day
+      event_datetime = DateTime.now.next_wday(day).to_date.to_datetime.advance(:hours => 13)  # convert it to 13:00 exactly
       client.say(channel: $main_channel,
-                 text: "<!channel> :warning: EVENT TIME - The day the event will be held is #{day} @ 13:00 - 14:00 (#{votes} votes)")
+                 text: "<!channel> :warning: EVENT TIME - The day the event will be held is next #{day}(#{event_datetime.strftime('%d/%m/%Y')}) @ 13:00 - 14:00 (#{votes} votes)")
+      current_event.event_datetime = event_datetime
       current_event.save!
+      false
     end
+    true
+  end
+
+  # Tries to create the new event
+  def self.try_create_next_event
+    # Create it only a couple of hours after the one ended
+    last_event = Event.get_active_event
+    return unless DateTime.now > last_event.event_datetime.advance(:hours => 4)
+
+    Event.create!(monday_votes: 0, tuesday_votes: 0, wednesday_votes: 0, thursday_votes: 0, friday_votes: 0, week: last_event.week + 1)
   end
 end
