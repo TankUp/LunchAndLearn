@@ -1,3 +1,7 @@
-D, [2017-06-29T18:11:34.719395 #66641] DEBUG -- :   [1m[36mActiveRecord::InternalMetadata Load (1.4ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
-D, [2017-06-29T18:11:34.746501 #66641] DEBUG -- :   [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
-D, [2017-06-29T18:11:34.748350 #66641] DEBUG -- :   [1m[35m (0.1ms)[0m  [1m[36mcommit transaction[0m
+D, [2017-06-30T13:02:48.544098 #82146] DEBUG -- :   [1m[35m (0.1ms)[0m  [1m[34mSELECT sqlite_version(*)[0m
+D, [2017-06-30T13:02:48.546388 #82146] DEBUG -- :   [1m[35m (2.1ms)[0m  [1m[35mCREATE TABLE "event_video_votes" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "event_video_id" integer, "person_id" integer)[0m
+D, [2017-06-30T13:02:48.548502 #82146] DEBUG -- :   [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "event_time_votes" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "event_id" integer, "person_id" integer, "monday_votes" integer, "tuesday_votes" integer, "wednesday_votes" integer, "thursday_votes" integer, "friday_votes" integer)[0m
+D, [2017-06-30T13:02:48.582165 #82146] DEBUG -- :   [1m[36mActiveRecord::InternalMetadata Load (1.5ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
+D, [2017-06-30T13:02:48.589839 #82146] DEBUG -- :   [1m[35m (0.3ms)[0m  [1m[36mbegin transaction[0m
+D, [2017-06-30T13:02:48.592114 #82146] DEBUG -- :   [1m[35m (0.1ms)[0m  [1m[36mcommit transaction[0m
+D, [2017-06-30T13:03:00.786554 #82146] DEBUG -- :   [1m[36mEvent Load (2.2ms)[0m  [1m[34mSELECT  "events".* FROM "events" ORDER BY "events"."id" DESC LIMIT ?[0m  [["LIMIT", 1]]

@@ -1,7 +1,7 @@
-require './db_init'
-require './models'
+require './lib/db_init'
+require './lib/models'
 require './slack_token'
-require './commands_help.rb'
+require './lib/commands_help.rb'
 require 'slack-ruby-bot'
 
 Slack.configure do |config|
@@ -22,6 +22,6 @@ if Event.get_active_event.nil?
 end
 
 # run the slackbot
-require './lunch_bot/lib/lunch_bot'
+require './lib/lunch_bot'
 
 LunchAndLearnBot.run
