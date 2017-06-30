@@ -1,7 +1,7 @@
-require './db_init'
-require './models'
+require './lib/db_init'
+require './lib/models'
 require './slack_token'
-require './commands_help.rb'
+require './lib/commands_help.rb'
 require 'slack-ruby-bot'
 
 Slack.configure do |config|
@@ -10,9 +10,10 @@ Slack.configure do |config|
 end
 # Read the main channel where the poll will be held
 # main_channel_name = gets.chomp
-main_channel_name = 'nobodies'
+main_channel_name = 'testing'
 client = Slack::Web::Client.new
 channels = client.channels_list.channels
+puts channels
 $main_channel = channels.detect { |c| c.name == main_channel_name }.id
 
 
@@ -21,6 +22,6 @@ if Event.get_active_event.nil?
   Event.create!
 end
 # run the slackbot
-require './lunch_bot/lib/lunch_bot'
+require './lib/lunch_bot'
 
 LunchAndLearnBot.run
