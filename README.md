@@ -9,7 +9,7 @@ Example:
 $slack_token = 'xoxb-111111111111-kajhdflakjsdhfuaewgflASJKHDGqwkjeh'
 ```
 
-then specify your target channel in `main.rb`   
+then specify your target channel in `main.rb` and run the bot like:    
 
 ```
 ruby main.rb
