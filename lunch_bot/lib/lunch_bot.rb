@@ -115,8 +115,10 @@ Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
     if hours_from_vote_start >= 3
       # if 3 or more hours have passed since the vote, close it
       current_event.time_votes_active = false
-      client.say(channel: $main_channel, text: "The voting for the date of the event is closed!")
-      # TODO: Add logic for picking the day and announce it!
+      client.say(channel: $main_channel, text: 'The voting for the date of the event is closed!')
+      day, votes = current_event.pick_winning_day
+      client.say(channel: $main_channel,
+                 text: "<!channel> :warning: EVENT TIME - The day the event will be held is #{day} @ 13:00 - 14:00 (#{votes} votes)")
       current_event.save!
     end
   end

@@ -25,6 +25,17 @@ class Event < ActiveRecord::Base
     event_videos.all.max.video
   end
 
+  # Returns a key-value pair of the day with the most votes
+  def pick_winning_day
+    days = {
+        :Monday => self.monday_votes,
+        :Tuesday => self.tuesday_votes,
+        :Wednesday => self.wednesday_votes,
+        :Thursday => self.thursday_votes,
+        :Friday => self.friday_votes,
+    }.max_by{|k, v| v}
+  end
+
   def add_video_suggestion(video)
     contains_video = event_videos.all.any? do |ev_v|
       ev_v.video.url == video.url
