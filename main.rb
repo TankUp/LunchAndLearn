@@ -10,7 +10,17 @@ Slack.configure do |config|
 end
 # Read the main channel where the poll will be held
 # main_channel_name = gets.chomp
-main_channel_name = 'testing'
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+main_channel_name = 'CHANNEL NAME HERE'
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
+# SPECIFY YOUR CHANNEL NAME
 client = Slack::Web::Client.new
 channels = client.channels_list.channels
 $main_channel = channels.detect { |c| c.name == main_channel_name }.id
