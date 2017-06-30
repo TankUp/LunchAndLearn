@@ -14,6 +14,7 @@ ActiveRecord::Schema.define do
       table.column :venue_id, :integer
       table.column :manager_id, :integer, through: 'people'
       table.column :event_datetime, :datetime
+      table.column :votes_initiated_at, :datetime
       table.column :monday_votes, :integer
       table.column :tuesday_votes, :integer
       table.column :wednesday_votes, :integer

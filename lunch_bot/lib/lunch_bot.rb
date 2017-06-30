@@ -5,6 +5,7 @@ require_relative 'bot_helper'
 
 class LunchAndLearnBot < SlackRubyBot::Bot
 
+
   # Add video suggestion
   match /(?<link>http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?)/ do |client, data, match|
     return unless data.channel[0] == 'D'  # if its not a private message, don't count the video
@@ -44,19 +45,45 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     client.say(channel: user_channel.id, text: message)
   end
 
+  # Every other match, used to keep the bot active, tracking when
+  # it should create a new event and etc
+  match /.*/ do |client, data, _|
+    try_announce_event_time_vote(client)
+  end
+
   # Creates a new event and initiates a vote for it
   def self.announce_event_vote(client)
     # Don't announce votes more frequently than every 10 seconds
     return if (not @last_vote_time.nil?) && (Time.now - @last_vote_time) < 10
 
     current_event = Event.get_active_event
-    client.say(channel: $main_channel, text: 'Accepting votes for videos!')
-    intro_text = "Accepting votes for Lunch and Learn week #{current_event.week}\n"
-    vote_text = current_event.event_videos.all.reduce(intro_text) do |vote_text, event_vid|
+    client.say(channel: $main_channel, text: "Accepting votes for Lunch and Learn week #{current_event.week}\n")
+    vote_text = current_event.event_videos.all.reduce('') do |vote_text, event_vid|
       vote_text + "#{event_vid.consecutive_number} (#{event_vid.votes} votes)- #{event_vid.video.url}\n"
     end
     client.say(channel: $main_channel, text: vote_text)
 
     @last_vote_time = Time.now
+  end
+
+  # Initiates a Vote for the date of the next event if it has not been initiated
+  def self.try_announce_event_time_vote(client)
+    current_event = Event.get_active_event
+    return unless current_event.votes_initiated_at.nil?
+
+    # initiate a new vote for the event
+    current_event.votes_initiated_at = DateTime.now
+    current_event.save!
+
+    # announce in the channel
+    client.say(channel: $main_channel, text: "Accepting votes for the day of the Lunc and Learn week #{current_event.week} event!")
+    voting_options_text = %Q$
+    Monday @ 13:00 - 14:00 (#{current_event.monday_votes} votes)
+Tuesday @ 13:00 - 14:00 (#{current_event.tuesday_votes} votes)
+Wednesday @ 13:00 - 14:00 (#{current_event.wednesday_votes} votes)
+Thursday @ 13:00 - 14:00 (#{current_event.thursday_votes} votes)
+Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
+    $
+    client.say(channel: $main_channel, text: voting_options_text)
   end
 end
