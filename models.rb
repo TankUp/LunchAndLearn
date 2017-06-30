@@ -11,6 +11,7 @@ end
 class Event < ActiveRecord::Base
   has_many :event_participants
   has_many :event_videos
+  has_many :event_time_votes
   has_many :people, :through => :event_participants
   has_many :videos, :through => :event_videos
 
@@ -99,9 +100,18 @@ class EventVideoVote < ActiveRecord::Base
   belongs_to :person
 end
 
-class EventParticipant < ActiveRecord::Base
-  belongs_to :event
+class EventTimeVote < ActiveRecord::Base
+  validates :person_id, uniqueness: {scope: :event_id}
+
   belongs_to :person
+  belongs_to :event
+end
+
+class EventParticipant < ActiveRecord::Base
+  validates :person_id, uniqueness: {scope: :event_id}
+
+  belongs_to :person
+  belongs_to :event
 end
 
 class Venue < ActiveRecord::Base

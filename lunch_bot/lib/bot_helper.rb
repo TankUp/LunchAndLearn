@@ -1,7 +1,6 @@
 module BotHelper
   # Given the user_id, fetch his username through the Slack API
   def self.fetch_username_by_id(user_id)
-    us = Slack::Web::Client.new.users_info(user: user_id).user
     Slack::Web::Client.new.users_info(user: user_id).user.real_name
   end
 

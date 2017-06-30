@@ -61,6 +61,19 @@ ActiveRecord::Schema.define do
     end
   end
 
+  # The table holding information on which person voted on which time to host the event
+  unless ActiveRecord::Base.connection.tables.include? 'event_time_vote'
+    create_table :event_time_vote do |table|
+      table.column :event_id, :integer
+      table.column :person_id, :integer
+      table.column :monday_votes, :integer
+      table.column :tuesday_votes, :integer
+      table.column :wednesday_votes, :integer
+      table.column :thursday_votes, :integer
+      table.column :friday_votes, :integer
+    end
+  end
+
   unless ActiveRecord::Base.connection.tables.include? 'venues'
     create_table :venues do |table|
       table.column :name, :string
