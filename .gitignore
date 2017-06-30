@@ -1,4 +1,6 @@
 slack_token.rb
+database.log
+database.db
 *.gem
 *.rbc
 /.config

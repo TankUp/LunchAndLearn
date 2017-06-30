@@ -9,6 +9,9 @@ gem 'eventmachine'
 gem 'faye-websocket'
 gem 'json', '~> 1.8', '>= 1.8.6'
 
+gem 'video_info'
+
+
 group :dev do
   gem 'pry'
 end
