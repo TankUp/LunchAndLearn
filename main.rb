@@ -10,7 +10,7 @@ Slack.configure do |config|
 end
 # Read the main channel where the poll will be held
 # main_channel_name = gets.chomp
-main_channel_name = 'nobodies'
+main_channel_name = 'testing'
 client = Slack::Web::Client.new
 channels = client.channels_list.channels
 $main_channel = channels.detect { |c| c.name == main_channel_name }.id
@@ -20,6 +20,7 @@ if Event.get_active_event.nil?
   # Seed a new event
   Event.create!(monday_votes: 0, tuesday_votes: 0, wednesday_votes: 0, thursday_votes: 0, friday_votes: 0)
 end
+
 # run the slackbot
 require './lunch_bot/lib/lunch_bot'
 

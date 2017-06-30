@@ -15,6 +15,7 @@ ActiveRecord::Schema.define do
       table.column :manager_id, :integer, through: 'people'
       table.column :event_datetime, :datetime
       table.column :votes_initiated_at, :datetime
+      table.column :time_votes_active, :boolean, default: true
       table.column :monday_votes, :integer, defaut: 0
       table.column :tuesday_votes, :integer, defaut: 0
       table.column :wednesday_votes, :integer, defaut: 0

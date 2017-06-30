@@ -67,6 +67,7 @@ class LunchAndLearnBot < SlackRubyBot::Bot
   # it should create a new event and etc
   match /.*/ do |client, data, _|
     try_announce_event_time_vote(client)
+    try_end_event_time_votes(client)
   end
 
   # Creates a new event and initiates a vote for it
@@ -91,10 +92,11 @@ class LunchAndLearnBot < SlackRubyBot::Bot
 
     # initiate a new vote for the event
     current_event.votes_initiated_at = DateTime.now
+    current_event.time_votes_active = true
     current_event.save!
 
     # announce in the channel
-    client.say(channel: $main_channel, text: "Accepting votes for the day of the Lunc and Learn week #{current_event.week} event!")
+    client.say(channel: $main_channel, text: "Accepting votes for the day of the Lunch and Learn week #{current_event.week} event!")
     voting_options_text = %Q$
     Monday @ 13:00 - 14:00 (#{current_event.monday_votes} votes)
 Tuesday @ 13:00 - 14:00 (#{current_event.tuesday_votes} votes)
@@ -103,5 +105,19 @@ Thursday @ 13:00 - 14:00 (#{current_event.thursday_votes} votes)
 Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
     $
     client.say(channel: $main_channel, text: voting_options_text)
+  end
+
+  # Tries to end the votes for the time of the event and pick the best one
+  def self.try_end_event_time_votes(client)
+    current_event = Event.get_active_event
+    return unless current_event.time_votes_active
+    hours_from_vote_start = ((Time.now - current_event.votes_initiated_at) / 3600).round
+    if hours_from_vote_start >= 3
+      # if 3 or more hours have passed since the vote, close it
+      current_event.time_votes_active = false
+      client.say(channel: $main_channel, text: "The voting for the date of the event is closed!")
+      # TODO: Add logic for picking the day and announce it!
+      current_event.save!
+    end
   end
 end
