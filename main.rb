@@ -33,7 +33,7 @@ end
 
 class Time
   def get_hour_difference_from(other_time)
-    raise Exception.new('Expected a Time object!') unless other_time.is_a?(Time)
+    raise Exception.new('Expected a Time object!') unless other_time.is_a?(Time) || other_time.is_a?(DateTime)
     if other_time > self
       ((self - other_time) / 3600).round
     else
