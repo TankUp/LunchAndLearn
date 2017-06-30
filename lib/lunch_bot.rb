@@ -1,10 +1,10 @@
 require 'slack-ruby-bot'
 require 'date'
 require_relative 'bot_helper'
+require 'video_info'
 
 
 class LunchAndLearnBot < SlackRubyBot::Bot
-
 
   # Add video suggestion
   match /(?<link>http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?)/ do |client, data, match|
@@ -19,12 +19,27 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     end
 
     client.say(channel: data.channel, text: 'Thanks for the video, I will add it as a suggestion for the event :)')
+
+
     # TODO: Query YT API for views, likes and etc
     vid = Video.new(url: youtube_link)
     Event.get_active_event.add_video_suggestion(vid)
 
     # TODO: Initiate event vote in main channel :)
     announce_event_vote(client)
+  end
+
+
+
+  match /Food vote (?<vote>.+)/   do |client, data, match|
+    food_vote = match[:vote]
+
+    user = Person.find_by(slack_id: current_user)
+    if user.nil?
+      user_name = BotHelper.fetch_username_by_id(current_user)
+      user = Person.create(slack_id: current_user, slack_name: user_name)
+    end
+    Event.get_active_event.add_food_vote_by_consecutive_number
   end
 
   # Accept a vote via a number (i.e vote for video 3)
@@ -63,6 +78,13 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     client.say(channel: user_channel.id, text: message)
   end
 
+
+  match // do |client, data, _|
+    try_announce_event_time_vote(client)
+    try_end_event_time_votes(client)
+  end
+
+
   # Every other match, used to keep the bot active, tracking when
   # it should create a new event and etc
   match /.*/ do |client, data, _|
@@ -70,6 +92,7 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     try_end_event_time_votes(client)
     try_create_next_event
   end
+
 
   # Creates a new event and initiates a vote for it
   def self.announce_event_vote(client)
@@ -79,7 +102,9 @@ class LunchAndLearnBot < SlackRubyBot::Bot
     current_event = Event.get_active_event
     client.say(channel: $main_channel, text: "Accepting votes for Lunch and Learn week #{current_event.week}\n")
     vote_text = current_event.event_videos.all.reduce('') do |vote_text, event_vid|
-      vote_text + "#{event_vid.consecutive_number} (#{event_vid.votes} votes)- #{event_vid.video.url}\n"
+      vidinf = VideoInfo.new(event_vid.video.url)
+      vote_text + "#{event_vid.consecutive_number}) 🎥 *#{vidinf.title}* - #{event_vid.video.url} \n  _#{vidinf.description}_ \n \n #{get_number(event_vid.votes)} votes \n\n\n"
+
     end
     client.say(channel: $main_channel, text: vote_text)
 
@@ -137,4 +162,31 @@ Friday @ 13:00 - 14:00 (#{current_event.friday_votes} votes)
 
     Event.create!(monday_votes: 0, tuesday_votes: 0, wednesday_votes: 0, thursday_votes: 0, friday_votes: 0, week: last_event.week + 1)
   end
+
+  def self.get_number(num) 
+    case num
+  when 0
+   "0️⃣"
+  when 1
+   "1️⃣"
+  when 2 
+   "2️⃣"    
+  when 3
+ "3️⃣"
+  when 4
+"4️⃣" 
+  when 5
+"5️⃣"
+  when 6
+"6️⃣"
+  when 7
+"7️⃣"
+  when 8
+"8️⃣"
+  when 9
+"9️⃣"
+else 
+  "no such number"
+  end
+end
 end
