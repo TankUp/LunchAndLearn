@@ -32,7 +32,7 @@ class Event < ActiveRecord::Base
   def pick_final_video
     event_videos.all.max.video
   end
-
+  
   def pick_final_food
     event_foods.all.max.video
   end
@@ -50,6 +50,15 @@ class Event < ActiveRecord::Base
       event_food.save!
       event_foods << event_food
     end
+  # Returns a key-value pair of the day with the most votes
+  def pick_winning_day
+    days = {
+        :Monday => self.monday_votes,
+        :Tuesday => self.tuesday_votes,
+        :Wednesday => self.wednesday_votes,
+        :Thursday => self.thursday_votes,
+        :Friday => self.friday_votes,
+    }.max_by{|k, v| v}
   end
 
   def add_video_suggestion(video)
